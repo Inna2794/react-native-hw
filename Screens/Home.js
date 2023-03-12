@@ -1,9 +1,10 @@
-import { StyleSheet, View, Image, Text, Pressable } from 'react-native';
+import { StyleSheet, View, Image, Text } from 'react-native-web';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import ProfileScreen from './ProfileScreen';
 import PostsScreen from './PostsScreen';
 import CreatePostsScreen from './CreatePostsScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Pressable } from 'react-native';
 import { useUser } from '../userContext';
 
 const Tabs = createBottomTabNavigator();
@@ -17,6 +18,7 @@ const Home = () => {
         name="Публікації"
         component={PostsScreen}
         options={{
+          tabBarShowLabel: false,
           tabBarLabel: 'Публікації',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
@@ -36,6 +38,7 @@ const Home = () => {
         name="Створити публикацію"
         component={CreatePostsScreen}
         options={{
+          tabBarShowLabel: false,
           tabBarLabel: 'Створити публикацію',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="plus" color={color} size={size} />
@@ -46,6 +49,7 @@ const Home = () => {
         name="Профіль"
         component={ProfileScreen}
         options={{
+          tabBarShowLabel: false,
           tabBarLabel: 'Профіль',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons
