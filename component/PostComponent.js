@@ -1,34 +1,67 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, Pressable, Image } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import {
+  doc,
+  addDoc,
+  updateDoc,
+  increment,
+  getDoc,
+  collection,
+  getDocs,
+} from 'firebase/firestore';
+import { db } from '../firebase/config';
+import { useEffect } from 'react';
 
-const PostItem = ({ navigation }) => {
-  const [like, setLike] = useState(153);
+const PostItem = ({
+  navigation,
+  photo,
+  title,
+  imageLocation,
+  id,
+  uid,
+  location,
+}) => {
+  const [like, setLike] = useState(0);
+  const [comment, setComment] = useState(0);
+
+  const getLikeAndComment = async () => {
+    const likeRef = doc(db, 'posts', id);
+    const docSnap = await getDoc(likeRef);
+    setComment(docSnap.data().comment);
+    setLike(docSnap.data().like);
+  };
+
+  const incrementLike = async () => {
+    const likeRef = doc(db, 'posts', id);
+    await updateDoc(likeRef, { like: increment(1) });
+  };
 
   const pressComment = () => {
-    console.log('fdret', navigation);
-    navigation.navigate('Comment');
+    console.log('pressComment');
+    navigation.navigate('CommentsScreen', { photo, id, uid });
   };
 
   const pressLike = () => {
     setLike(like + 1);
+    incrementLike();
   };
 
   const pressMapMarker = () => {
-    navigation.navigate('Map');
+    console.log('fdret', location);
+    navigation.navigate('Map', { location });
   };
 
+  getLikeAndComment();
+
   return (
-    <View>
-      <Image
-        style={styles.image}
-        source={require('../assets/images/postImage.jpg')}
-      />
-      <Text style={styles.signature}>Forest</Text>
+    <View style={styles.container}>
+      <Image style={styles.image} source={{ uri: photo }} />
+      <Text style={styles.signature}>{title}</Text>
       <View style={styles.signatureBox}>
         <Pressable onPress={pressComment} style={styles.viewBox}>
           <MaterialCommunityIcons name="comment" color="#ff6c00" size={24} />
-          <Text style={styles.view}>8</Text>
+          <Text style={styles.view}>{comment}</Text>
         </Pressable>
         <Pressable onPress={pressLike} style={styles.likeBox}>
           <MaterialCommunityIcons
@@ -44,7 +77,7 @@ const PostItem = ({ navigation }) => {
             color="#aaa"
             size={24}
           />
-          <Text style={styles.local}>Ukraine</Text>
+          <Text style={styles.local}>{imageLocation}</Text>
         </Pressable>
       </View>
     </View>
@@ -52,20 +85,27 @@ const PostItem = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    marginTop: 15,
+  },
+
   image: {
-    // display: 'box',
     marginLeft: 'auto',
     marginRight: 'auto',
-    width: 343,
+    width: '90%',
     height: 240,
+    borderRadius: 15,
   },
   signature: {
-    marginLeft: 16,
+    marginTop: 10,
+    marginLeft: 35,
   },
 
   signatureBox: {
+    marginTop: 10,
     display: 'flex',
     flexDirection: 'row',
+    alignItems: 'baseline',
   },
   viewBox: {
     alignItems: 'center',
@@ -92,9 +132,6 @@ const styles = StyleSheet.create({
   local: {
     marginLeft: 7,
   },
-  // viewBox: {},
-  // viewBox: {},
-  // viewBox: {},
 });
 
 export default PostItem;

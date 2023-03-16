@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { StyleSheet, View } from 'react-native';
 import { Route } from './router';
-import { UserProvider } from './userContext';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
+import './firebase/config';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -39,26 +41,22 @@ const App = () => {
   }
 
   return (
-    <UserProvider>
+    // <UserProvider>
+    <Provider store={store}>
       <NavigationContainer>
         <View style={styles.container} onLayout={onLayoutRootView}>
           <Route />
         </View>
       </NavigationContainer>
-    </UserProvider>
+    </Provider>
+    // </UserProvider>
   );
 };
 
-// https://prnt.sc/vc5s9P2hGpen   debugger screenshot
 export default App;
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
-    // backgroundColor: 'grey',
-
     flex: 1,
-    // alignItems: 'stretch',
-    // justifyContent: 'flex-end',
   },
 
   navBox: {

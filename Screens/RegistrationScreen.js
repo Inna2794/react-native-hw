@@ -1,10 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
   TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
   KeyboardAvoidingView,
   ImageBackground,
   Platform,
@@ -12,59 +10,74 @@ import {
   Text,
   Pressable,
   Image,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useUser } from '../userContext';
-import Login from './LoginScreen';
+import { useDispatch } from 'react-redux';
+import { register } from '../redux/auth/authOperations';
+import * as ImagePicker from 'expo-image-picker';
+import { uploadPhotoToStorage } from '../redux/auth/authOperations';
 
 const Registration = ({ navigation }) => {
-  const { logIn, login, email, password, setLogin, setEmail, setPassword } =
-    useUser();
+  const dispatch = useDispatch();
+  const [login, setLogin] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const [ava, setAva] = useState(null);
+  const [avatar, setAvatar] = useState(null);
 
   const loginHandler = text => setLogin(text);
   const emailHandler = text => setEmail(text);
   const passwordHandler = text => setPassword(text);
 
-  // console.log(login, email, password, isAuth);
-
   const onSubmit = () => {
     if (login === '' || email === '' || password === '') {
       return Alert.alert('Заповнить поля');
     } else {
-      logIn();
+      dispatch(register({ email, password, login, avatar }));
     }
   };
 
   const onTransition = () => {
-    // navigation.navigate('Логін');
-    logIn();
+    navigation.navigate('Логін');
   };
 
-  const addPhoto = () => {
-    console.log('Add photo');
+  const addPhoto = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    setAva(result.assets[0].uri);
+    setAvatar(await uploadPhotoToStorage(result.assets[0].uri));
   };
+
+  useEffect(() => {}, [ava]);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <ImageBackground
-        source={require('../assets/images/background_img2.jpg')}
-        style={styles.image}
-      >
-        <View style={styles.container}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          >
-            <View style={styles.avatar}>
-              <Image />
-              <Pressable onPress={addPhoto}>
-                <Ionicons
-                  name="add-circle-outline"
-                  size={30}
-                  color="#FF6C00"
-                  style={styles.icon}
-                />
-              </Pressable>
-            </View>
+    <ImageBackground
+      source={require('../assets/images/background_img2.jpg')}
+      style={styles.image}
+    >
+      <View style={styles.container}>
+        <View style={styles.avatarWraper}>
+          <Image style={styles.avatar} source={{ uri: ava }} />
+          <Pressable onPress={addPhoto}>
+            <Ionicons
+              name="add-circle-outline"
+              size={30}
+              color="#FF6C00"
+              style={styles.icon}
+            />
+          </Pressable>
+        </View>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView>
             <Text style={styles.title}>Реєстрація</Text>
             <TextInput
               value={login}
@@ -85,6 +98,7 @@ const Registration = ({ navigation }) => {
               secureTextEntry={true}
               style={styles.input}
             />
+
             <Pressable onPress={onSubmit} style={styles.button}>
               <Text style={styles.text}>Зареєструватись</Text>
             </Pressable>
@@ -94,10 +108,10 @@ const Registration = ({ navigation }) => {
                 <Text style={styles.loginLink}>Увійти</Text>
               </Pressable>
             </View>
-          </KeyboardAvoidingView>
-        </View>
-      </ImageBackground>
-    </TouchableWithoutFeedback>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </View>
+    </ImageBackground>
   );
 };
 
@@ -119,9 +133,16 @@ const styles = StyleSheet.create({
     marginLeft: 16,
     marginRight: 16,
   },
-
   avatar: {
     position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+  },
+
+  avatarWraper: {
+    position: 'absolute',
+    zIndex: 5,
     top: -76,
     width: 120,
     height: 120,

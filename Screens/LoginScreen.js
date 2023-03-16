@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -12,19 +12,22 @@ import {
   Pressable,
   Text,
 } from 'react-native';
-import { useUser } from '../userContext';
+import { logIn } from '../redux/auth/authOperations';
+import { useDispatch } from 'react-redux';
 
 const Login = ({ navigation }) => {
-  const { login, setLogin, password, setPassword, logIn } = useUser();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const loginHandler = text => setLogin(text);
+  const emailHandler = text => setEmail(text);
   const passwordHandler = text => setPassword(text);
 
   const onLogin = () => {
-    if (login === '' || password === '') {
+    if (email === '' || password === '') {
       return Alert.alert('Заповнить поля');
     }
-    logIn();
+    dispatch(logIn({ email, password }));
   };
 
   const onTransition = () => {
@@ -42,11 +45,10 @@ const Login = ({ navigation }) => {
             behavior={Platform.OS == 'ios' ? 'padding' : 'height'}
           >
             <Text style={styles.title}>Увійти</Text>
-            {/* <Text>User Id {userId}</Text> */}
             <TextInput
-              value={login}
-              onChangeText={loginHandler}
-              placeholder="Логін"
+              value={email}
+              onChangeText={emailHandler}
+              placeholder="Адреса електронної пошти"
               style={styles.input}
             />
             <TextInput
@@ -76,11 +78,6 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     justifyContent: 'flex-end',
-    // position: 'absolute',
-    // top: 0,
-    // right: 0,
-    // bottom: 0,
-    // left: 0,
   },
 
   container: {
