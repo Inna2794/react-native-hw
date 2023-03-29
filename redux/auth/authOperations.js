@@ -44,7 +44,7 @@ export const register = createAsyncThunk(
     } catch (error) {
       if (`${error}`.includes('auth/email-already-in-use')) {
         Alert.alert(
-          'Юзвер з таким ємайлом вже існує))) Заходіть на сторінку логіну'
+          'Юзер з таким ємайлом вже існує. Заходіть на сторінку логіну'
         );
       }
       console.log(error);
